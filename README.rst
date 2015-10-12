@@ -12,7 +12,7 @@ Check out `ipfs <http://ipfs.io/>`_ and `the api command reference
 
 Install with pip:
 
-.. code-block::
+.. code-block:: python
 
     pip install ipfs-api
 
@@ -86,6 +86,15 @@ This module also contains some helper functions for adding strings, json, and ev
     'QmRFqz1ABQtbMBDfjpMubTaginvpVnf58Y87gheRzGfe4i'
     >>> api.get_pyobj(_)
     [1, 77, 'lol']
+
+
+Documentaion
+------------
+
+.. toctree::
+    :maxdepth: 2
+    
+    modules
 
 
 How to Contribute

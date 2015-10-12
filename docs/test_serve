@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Serve html docs locally for testing
+(cd build/html && python -m SimpleHTTPServer ${1-${8000}})
