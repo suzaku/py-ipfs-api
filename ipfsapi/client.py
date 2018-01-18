@@ -770,6 +770,27 @@ class Client(object):
         args = (name,)
         return self._client.request('/resolve', args, decoder='json', **kwargs)
 
+    def pubsub_ls(self, **kwargs):
+        return self._client.request('/pubsub/ls', decoder='json', **kwargs)
+
+    def pubsub_peers(self, topic=None, **kwargs):
+        if topic is None:
+            args = []
+        else:
+            args = [topic]
+        return self._client.request(
+            '/pubsub/peers', args, decoder='json', **kwargs)
+
+    def pubsub_pub(self, topic, payload, **kwargs):
+        args = (topic, payload)
+        return self._client.request(
+            '/pubsub/pub', args, decoder='json', **kwargs)
+
+    def pubsub_sub(self, topic, discover=False, **kwargs):
+        args = (topic, discover)
+        return self._client.request(
+            '/pubsub/sub', args, decoder='json', **kwargs)
+
     def key_list(self, **kwargs):
         """Returns a list of generated public keys that can be used with name_publish
 
