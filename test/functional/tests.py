@@ -1,9 +1,6 @@
 # _*_ coding: utf-8 -*-
 import os
-import json
 import shutil
-import socket
-import sys
 import time
 import unittest
 import logging
@@ -14,6 +11,8 @@ import ipfsapi
 
 
 __is_available = None
+
+
 def is_available():
     """
     Return whether the IPFS daemon is reachable or not
@@ -41,6 +40,7 @@ def skipIfOffline():
     else:
         return unittest.skip("IPFS node is not available")
 
+
 def skipUnlessCI():
     have_ci  = os.environ.get("CI", "false") == "true"
     have_pid = os.environ.get("PY_IPFSAPI_TEST_DAEMON_PID", "").isdigit()
@@ -52,8 +52,8 @@ def test_ipfs_node_available():
     assert is_available(), "Functional tests require an IPFS node to be available at: " + addr
 
 
-
 HERE = os.path.dirname(os.path.abspath(__file__))
+
 
 class AssertVersionTest(unittest.TestCase):
     def test_assert_version(self):
@@ -67,6 +67,7 @@ class AssertVersionTest(unittest.TestCase):
         # Too low version
         with self.assertRaises(ipfsapi.exceptions.VersionMismatch):
             ipfsapi.assert_version("0.0.5", "0.1.0", "0.2.0")
+
 
 @skipIfOffline()
 class IpfsApiTest(unittest.TestCase):

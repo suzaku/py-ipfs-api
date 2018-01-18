@@ -10,18 +10,20 @@ import subprocess
 import sys
 import time
 
+import pytest
+
 
 if not hasattr(contextlib, "suppress"):
-	"""
-	Polyfill for ``contextlib.suppress``
-	"""
-	@contextlib.contextmanager
-	def _contextlib_suppress(*exceptions):
-		try:
-			yield
-		except exceptions:
-			pass
-	contextlib.suppress = _contextlib_suppress
+    """
+    Polyfill for ``contextlib.suppress``
+    """
+    @contextlib.contextmanager
+    def _contextlib_suppress(*exceptions):
+        try:
+            yield
+        except exceptions:
+            pass
+    contextlib.suppress = _contextlib_suppress
 
 
 ######################
@@ -57,10 +59,10 @@ os.environ["PY_IPFSAPI_DEFAULT_PORT"] = str(PORT)
 
 # Make sure the IPFS data directory exists and is empty
 with contextlib.suppress(OSError):  #PY2: Replace with `FileNotFoundError`
-	shutil.rmtree(str(IPFS_PATH))
+    shutil.rmtree(str(IPFS_PATH))
 
 with contextlib.suppress(OSError):  #PY2: Replace with `FileExistsError`
-	os.makedirs(str(IPFS_PATH))
+    os.makedirs(str(IPFS_PATH))
 
 # Initialize the IPFS data directory
 subprocess.call(["ipfs", "init"])
@@ -79,18 +81,19 @@ os.environ["PY_IPFSAPI_TEST_DAEMON_PID"] = str(DAEMON.pid)
 # Collect the exit code of `DAEMON` when `SIGCHLD` is received
 # (otherwise the shutdown test fails to recognize that the daemon process is dead)
 if os.name == "posix":
-	import signal
-	signal.signal(signal.SIGCHLD, lambda *a: DAEMON.poll())
+    import signal
+    signal.signal(signal.SIGCHLD, lambda *a: DAEMON.poll())
 
 # Wait for daemon to start up
 import ipfsapi
+
 while True:
-	try:
-		ipfsapi.connect(HOST, PORT)
-	except ipfsapi.exceptions.ConnectionError:
-		time.sleep(0.05)
-	else:
-		break
+    try:
+        ipfsapi.connect(HOST, PORT)
+    except ipfsapi.exceptions.ConnectionError:
+        time.sleep(0.05)
+    else:
+        break
 
 
 ##################
@@ -99,26 +102,24 @@ while True:
 
 PYTEST_CODE = 1
 try:
-	# Run tests in CI-mode (will stop the daemon at the end through the API)
-	os.environ["CI"] = "true"
-	
-	# Make sure all required py.test plugins are loaded
-	os.environ["PYTEST_PLUGINS"] = ",".join(["pytest_cov", "pytest_ordering"])
-	
-	# Launch py.test in-process
-	import pytest
-	PYTEST_CODE = pytest.main([
-		"--verbose",
-		"--cov=ipfsapi",
-		"--cov-report=term",
-		"--cov-report=html:{}".format(str(TEST_PATH / "cov_html")),
-		"--cov-report=xml:{}".format(str(TEST_PATH / "cov.xml"))
-	] + sys.argv[1:])
+    # Run tests in CI-mode (will stop the daemon at the end through the API)
+    os.environ["CI"] = "true"
+
+    # Make sure all required py.test plugins are loaded
+    os.environ["PYTEST_PLUGINS"] = ",".join(["pytest_cov", "pytest_ordering"])
+
+    # Launch py.test in-process
+    PYTEST_CODE = pytest.main([
+        "--verbose",
+        "--cov=ipfsapi",
+        "--cov-report=term",
+        "--cov-report=html:{}".format(str(TEST_PATH / "cov_html")),
+        "--cov-report=xml:{}".format(str(TEST_PATH / "cov.xml"))
+    ] + sys.argv[1:])
 finally:
-	# Make sure daemon was terminated during the tests
-	if DAEMON.poll() is None:  # "if DAEMON is running"
-		DAEMON.kill()
-		
-		print("IPFS daemon was still running after test!", file=sys.stderr)
+    # Make sure daemon was terminated during the tests
+    if DAEMON.poll() is None:  # "if DAEMON is running"
+        DAEMON.kill()
+        print("IPFS daemon was still running after test!", file=sys.stderr)
 
 sys.exit(PYTEST_CODE)
